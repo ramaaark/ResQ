@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barangay Incident Command Dashboard — ResQ</title>
+  <link rel="stylesheet" href="assets/vendor/leaflet.css">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+  <script defer src="assets/vendor/chart.umd.min.js"></script>
+  <script defer src="assets/vendor/leaflet.js"></script>
+  <script defer src="assets/js/storage.js"></script>
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/dashboard.js"></script>
+</head>
+<body>
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <header class="dashboard-header">
+    <div class="dashboard-header-inner">
+      <div class="header-brand">
+        <div class="header-logo" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="M9 12l2 2 4-4"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="header-title">ResQ Barangay Admin Dashboard</h1>
+          <p id="adminIdentityText" class="header-subtitle">Loading official session...</p>
+          <p id="printTimestampText" class="print-only-meta"></p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" id="printReportBtn" class="btn btn-accent btn-sm">Print Report</button>
+        <button type="button" id="exportCsvBtn" class="btn btn-outline btn-sm">Export CSV</button>
+        <button type="button" id="adminLogoutBtn" class="btn btn-danger btn-sm">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-main">
+    <section class="kpi-grid" aria-label="Incident Summary Metrics">
+      <article class="kpi-card">
+        <span class="kpi-label">Total Active Reports</span>
+        <span id="kpiTotal" class="kpi-value">0</span>
+      </article>
+      <article class="kpi-card kpi-pending">
+        <span class="kpi-label">Pending</span>
+        <span id="kpiPending" class="kpi-value">0</span>
+      </article>
+      <article class="kpi-card kpi-responding">
+        <span class="kpi-label">Responding</span>
+        <span id="kpiResponding" class="kpi-value">0</span>
+      </article>
+      <article class="kpi-card kpi-resolved">
+        <span class="kpi-label">Resolved</span>
+        <span id="kpiResolved" class="kpi-value">0</span>
+      </article>
+    </section>
+
+    <section class="charts-grid" aria-label="Incident Analytics Charts">
+      <article class="panel-card">
+        <h2 class="panel-heading">Incident Status Distribution</h2>
+        <p class="panel-subtext">Pending vs. Responding vs. Resolved reports</p>
+        <div class="chart-box">
+          <canvas id="statusPieChart"></canvas>
+        </div>
+      </article>
+
+      <article class="panel-card">
+        <h2 class="panel-heading">Incidents per Emergency Category</h2>
+        <p class="panel-subtext">Breakdown across Crime, Accident, Fire, Medical Emergency, and Others</p>
+        <div class="chart-box">
+          <canvas id="categoryBarChart"></canvas>
+        </div>
+      </article>
+
+      <article class="panel-card">
+        <h2 class="panel-heading">Incidents per Priority Level</h2>
+        <p class="panel-subtext">Severity counts across LOW, MEDIUM, and HIGH</p>
+        <div class="chart-box">
+          <canvas id="priorityBarChart"></canvas>
+        </div>
+      </article>
+
+      <article class="panel-card">
+        <h2 class="panel-heading">Incidents Submitted by Date</h2>
+        <p class="panel-subtext">Daily emergency report volume trend</p>
+        <div class="chart-box">
+          <canvas id="dateLineChart"></canvas>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel-card">
+      <div class="table-toolbar">
+        <div>
+          <h2 class="panel-heading">Submitted Emergency Reports</h2>
+          <p class="panel-subtext">Update response statuses, inspect attached evidence, or click any photo thumbnail to enlarge.</p>
+        </div>
+
+        <div class="view-tabs" role="tablist" aria-label="Report Scope">
+          <button type="button" id="tabActiveReports" class="tab-btn active" role="tab" aria-selected="true">
+            Active Reports
+          </button>
+          <button type="button" id="tabArchivedReports" class="tab-btn" role="tab" aria-selected="false">
+            Archived Records (<span id="archivedCountBadge">0</span>)
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label for="searchInput" class="filter-label">Search (Tracking #, Contact, Location, Resident)</label>
+          <input
+            type="search"
+            id="searchInput"
+            class="form-control"
+            placeholder="e.g., RESQ-2026... or 0917..."
+          >
+        </div>
+
+        <div class="filter-field">
+          <label for="dateFilter" class="filter-label">Filter by Date</label>
+          <input type="date" id="dateFilter" class="form-control">
+        </div>
+
+        <div class="filter-field">
+          <label for="priorityFilter" class="filter-label">Priority Level</label>
+          <select id="priorityFilter" class="form-control">
+            <option value="">All Priorities</option>
+            <option value="LOW">LOW</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="HIGH">HIGH</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="categoryFilter" class="filter-label">Emergency Category</label>
+          <select id="categoryFilter" class="form-control">
+            <option value="">All Categories</option>
+            <option value="Crime">Crime</option>
+            <option value="Accident">Accident</option>
+            <option value="Fire">Fire</option>
+            <option value="Medical Emergency">Medical Emergency</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+
+        <button type="button" id="clearFiltersBtn" class="btn btn-outline">Reset Filters</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="reports-table">
+          <thead>
+            <tr>
+              <th>Tracking #</th>
+              <th>Resident Contact</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Location</th>
+              <th>Attached Media</th>
+              <th>Description Summary</th>
+              <th>Timestamp</th>
+              <th>Status</th>
+              <th>Update Status &amp; Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reportsTableBody">
+            <tr>
+              <td colspan="10" class="empty-cell">Loading emergency reports...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div id="reportDetailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
+    <div class="modal-card modal-card-wide">
+      <div class="modal-header">
+        <h2 id="detailModalTitle" class="modal-title">Incident Report Details</h2>
+        <button type="button" id="closeDetailModalBtn" class="btn btn-primary btn-sm">Close</button>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-box">
+          <span class="detail-box-label">Tracking Number</span>
+          <span id="detailTracking" class="detail-box-value"></span>
+        </div>
+        <div class="detail-box">
+          <span class="detail-box-label">Resident &amp; Contact</span>
+          <span id="detailResident" class="detail-box-value"></span>
+        </div>
+        <div class="detail-box">
+          <span class="detail-box-label">Category &amp; Priority</span>
+          <span id="detailCategoryPriority" class="detail-box-value"></span>
+        </div>
+        <div class="detail-box">
+          <span class="detail-box-label">Submitted Timestamp</span>
+          <span id="detailTimestamp" class="detail-box-value"></span>
+        </div>
+      </div>
+
+      <div class="detail-box">
+        <span class="detail-box-label">Location &amp; Coordinates</span>
+        <span id="detailLocation" class="detail-box-value"></span>
+      </div>
+
+      <div id="detailMapContainer" class="detail-map-box hidden"></div>
+
+      <div class="detail-box">
+        <span class="detail-box-label">Full Incident Description</span>
+        <p id="detailDescription" class="detail-box-value"></p>
+      </div>
+
+      <div class="detail-box">
+        <span class="detail-box-label">Attached Media Evidence</span>
+        <div id="detailMediaGallery" class="detail-media-grid"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="detailAdminNotes" class="form-label">Barangay Response Note (Sent to Resident on Status Update)</label>
+        <textarea
+          id="detailAdminNotes"
+          rows="2"
+          class="form-control"
+          placeholder="Optional note about dispatched team or action taken..."
+        ></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <select id="detailStatusSelect" class="status-select" aria-label="Change report status">
+          <option value="Pending">Pending</option>
+          <option value="Responding">Responding</option>
+          <option value="Resolved">Resolved</option>
+        </select>
+        <button type="button" id="saveDetailStatusBtn" class="btn btn-primary">Save Status &amp; Note</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="confirmModalTitle" class="modal-title">Confirm Action</h2>
+      </div>
+      <p id="confirmModalMessage"></p>
+      <div class="modal-actions">
+        <button type="button" id="confirmCancelBtn" class="btn btn-outline">Cancel</button>
+        <button type="button" id="confirmProceedBtn" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="imageLightboxModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="lightboxCaption">
+    <div class="lightbox-card">
+      <div class="lightbox-topbar">
+        <span id="lightboxCaption" class="lightbox-caption">Image Preview</span>
+        <button type="button" id="closeLightboxBtn" class="btn btn-primary btn-sm">Close</button>
+      </div>
+      <div class="lightbox-image-frame">
+        <img id="lightboxImage" class="lightbox-image" src="" alt="Enlarged incident photo">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

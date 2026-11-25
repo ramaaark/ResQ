@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Report History &amp; Alerts — ResQ</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/history.js"></script>
+</head>
+<body>
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <div class="app-shell">
+    <header class="top-header">
+      <div class="header-top-row">
+        <div class="header-brand">
+          <div class="header-logo" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="M12 8v4"></path>
+              <path d="M12 16h.01"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="header-title">My Report History</h1>
+            <p id="residentGreeting" class="header-resident">Loading resident profile...</p>
+          </div>
+        </div>
+
+        <button type="button" id="logoutBtn" class="btn btn-accent btn-sm">Sign Out</button>
+      </div>
+
+      <nav class="header-nav" aria-label="Resident Navigation">
+        <a href="report.html" class="nav-pill">Submit Incident</a>
+        <a href="history.html" class="nav-pill active">
+          My Report History
+          <span id="unreadNotifBadge" class="nav-badge hidden">0</span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="main-container">
+      <section class="card notif-panel">
+        <div class="gps-toolbar">
+          <div>
+            <h2 class="section-heading">Barangay Staff Response Alerts</h2>
+            <p class="field-hint">Live notifications appear here when barangay staff respond to or resolve your reports.</p>
+          </div>
+          <div class="voice-controls">
+            <button type="button" id="enablePushBtn" class="btn btn-outline btn-sm">Enable Browser Alerts</button>
+            <button type="button" id="markAllReadBtn" class="btn btn-primary btn-sm">Mark All Read</button>
+          </div>
+        </div>
+
+        <div id="notificationsList" class="notif-list">
+          <p class="empty-state">Checking status alerts...</p>
+        </div>
+      </section>
+
+      <section class="card card-accent-top">
+        <div class="gps-toolbar">
+          <div>
+            <h2 class="section-heading">Submitted Incident Reports</h2>
+            <p class="field-hint">Click any attached photo to enlarge it.</p>
+          </div>
+          <a href="report.html" class="btn btn-accent btn-sm">New Emergency Report</a>
+        </div>
+
+        <div id="reportHistoryList" class="history-list">
+          <p class="empty-state">Loading your submitted reports...</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="imageLightboxModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="lightboxCaption">
+    <div class="lightbox-card">
+      <div class="lightbox-topbar">
+        <span id="lightboxCaption" class="lightbox-caption">Image Preview</span>
+        <button type="button" id="closeLightboxBtn" class="btn btn-primary btn-sm">Close</button>
+      </div>
+      <div class="lightbox-image-frame">
+        <img id="lightboxImage" class="lightbox-image" src="" alt="Enlarged report image">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

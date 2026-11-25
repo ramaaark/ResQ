@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit Emergency Report — ResQ</title>
+  <link rel="stylesheet" href="assets/vendor/leaflet.css">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script defer src="assets/vendor/leaflet.js"></script>
+  <script defer src="assets/js/storage.js"></script>
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/report.js"></script>
+</head>
+<body>
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <div class="app-shell">
+    <header class="top-header">
+      <div class="header-top-row">
+        <div class="header-brand">
+          <div class="header-logo" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="M12 8v4"></path>
+              <path d="M12 16h.01"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="header-title">ResQ Emergency Report</h1>
+            <p id="residentGreeting" class="header-resident">Loading resident profile...</p>
+          </div>
+        </div>
+
+        <button type="button" id="logoutBtn" class="btn btn-accent btn-sm">Sign Out</button>
+      </div>
+
+      <nav class="header-nav" aria-label="Resident Navigation">
+        <a href="report.html" class="nav-pill active">Submit Incident</a>
+        <a href="history.html" class="nav-pill">
+          My Report History
+          <span id="unreadNotifBadge" class="nav-badge hidden">0</span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="main-container">
+      <section id="liveAlertBanner" class="alert-banner info hidden" role="status"></section>
+
+      <section id="trackingSuccessSection" class="tracking-success-card hidden" aria-live="polite">
+        <h2 class="section-heading">Emergency Report Submitted</h2>
+        <p>Your report has been securely transmitted to the Barangay Admin Dashboard. Save your tracking number below:</p>
+        <div class="tracking-code-box">
+          <span id="generatedTrackingCode" class="tracking-code-value">RESQ-00000000-000000</span>
+          <button type="button" id="copyTrackingBtn" class="btn btn-accent btn-sm">Copy Tracking Number</button>
+        </div>
+        <div class="action-stack">
+          <a href="history.html" class="btn btn-accent">View Report History &amp; Status Updates</a>
+          <button type="button" id="submitAnotherBtn" class="btn btn-outline">Submit Another Report</button>
+        </div>
+      </section>
+
+      <form id="emergencyReportForm" novalidate>
+        <section class="card card-accent-top">
+          <h2 class="section-heading">1. Emergency Category &amp; Priority</h2>
+          <p class="section-subheading">Select the incident type and urgency level. Your draft is saved automatically if the page reloads.</p>
+
+          <div class="form-group">
+            <span class="form-label">Emergency Category<span class="required-mark">*</span></span>
+            <div class="choice-grid" role="radiogroup" aria-label="Emergency Category">
+              <label class="choice-card">
+                <input type="radio" name="category" value="Crime" required>
+                <span>Crime</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="category" value="Accident">
+                <span>Accident</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="category" value="Fire">
+                <span>Fire</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="category" value="Medical Emergency">
+                <span>Medical Emergency</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="category" value="Others">
+                <span>Others</span>
+              </label>
+            </div>
+            <p id="categoryError" class="field-error"></p>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Priority Level<span class="required-mark">*</span></span>
+            <div class="priority-grid" role="radiogroup" aria-label="Emergency Priority Level">
+              <label class="priority-card priority-low">
+                <input type="radio" name="priority" value="LOW" required>
+                <span>LOW</span>
+              </label>
+              <label class="priority-card priority-medium">
+                <input type="radio" name="priority" value="MEDIUM">
+                <span>MEDIUM</span>
+              </label>
+              <label class="priority-card priority-high">
+                <input type="radio" name="priority" value="HIGH">
+                <span>HIGH</span>
+              </label>
+            </div>
+            <p id="priorityError" class="field-error"></p>
+          </div>
+
+          <div class="two-col">
+            <div class="form-group">
+              <label for="contactNumber" class="form-label">
+                Resident Mobile / Contact Number<span class="required-mark">*</span>
+              </label>
+              <input
+                type="tel"
+                id="contactNumber"
+                name="contact_number"
+                class="form-control"
+                placeholder="e.g., 09171234567"
+                required
+              >
+              <p id="contactNumberError" class="field-error"></p>
+            </div>
+
+            <div class="form-group">
+              <label for="incidentDate" class="form-label">
+                Incident Date (Current Date Only)<span class="required-mark">*</span>
+              </label>
+              <input
+                type="date"
+                id="incidentDate"
+                name="incident_date"
+                class="form-control"
+                required
+              >
+              <p id="incidentDateError" class="field-error"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="card card-accent-top">
+          <h2 class="section-heading">2. GPS Coordinates &amp; Location Details</h2>
+          <p class="section-subheading">Allow GPS access or click the map to pin the incident location.</p>
+
+          <div class="gps-toolbar">
+            <span id="gpsStatusText" class="gps-status-text">Checking device GPS location...</span>
+            <button type="button" id="detectGpsBtn" class="btn btn-outline btn-sm">Detect My GPS Location</button>
+          </div>
+
+          <div id="residentMap" class="map-canvas" aria-label="Interactive incident location map"></div>
+
+          <div class="two-col">
+            <div class="form-group">
+              <label for="latitudeInput" class="form-label">Latitude</label>
+              <input
+                type="text"
+                id="latitudeInput"
+                name="latitude"
+                class="form-control"
+                placeholder="e.g., 14.599512"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="longitudeInput" class="form-label">Longitude</label>
+              <input
+                type="text"
+                id="longitudeInput"
+                name="longitude"
+                class="form-control"
+                placeholder="e.g., 120.984222"
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="locationDescription" class="form-label">
+              Location Description (Street, Purok, Landmark)<span class="required-mark">*</span>
+            </label>
+            <input
+              type="text"
+              id="locationDescription"
+              name="location_description"
+              class="form-control"
+              placeholder="e.g., Purok 3, Corner Rizal St., near Barangay Covered Court"
+              required
+            >
+            <p id="locationDescriptionError" class="field-error"></p>
+          </div>
+        </section>
+
+        <section class="card card-accent-top">
+          <h2 class="section-heading">3. Incident Description &amp; Media Evidence</h2>
+          <p class="section-subheading">Provide clear incident details and attach photos, videos, or audio recordings.</p>
+
+          <div class="form-group">
+            <label for="incidentDescription" class="form-label">
+              Incident Description<span class="required-mark">*</span>
+            </label>
+            <textarea
+              id="incidentDescription"
+              name="description"
+              rows="4"
+              class="form-control"
+              placeholder="Describe what happened, people involved, and immediate hazards..."
+              required
+            ></textarea>
+            <div class="char-counter">
+              <span id="descCharCount">0</span> characters
+            </div>
+            <p id="incidentDescriptionError" class="field-error"></p>
+          </div>
+
+          <div class="media-section-grid">
+            <div class="upload-box">
+              <h3 class="upload-box-title">Photo Upload</h3>
+              <input
+                type="file"
+                id="photoUploadInput"
+                class="file-input-control"
+                accept="image/*"
+                multiple
+              >
+              <p class="field-hint">Click attached images to enlarge.</p>
+            </div>
+
+            <div class="upload-box">
+              <h3 class="upload-box-title">Video Upload</h3>
+              <input
+                type="file"
+                id="videoUploadInput"
+                class="file-input-control"
+                accept="video/*"
+                multiple
+              >
+              <p class="field-hint">MP4, WebM, MOV supported.</p>
+            </div>
+
+            <div class="upload-box">
+              <h3 class="upload-box-title">Voice / Audio Upload</h3>
+              <input
+                type="file"
+                id="audioUploadInput"
+                class="file-input-control"
+                accept="audio/*"
+                multiple
+              >
+              <div class="voice-controls">
+                <button type="button" id="recordVoiceBtn" class="btn btn-outline btn-sm">Record Voice</button>
+                <span id="recordingStatus" class="recording-indicator hidden">Recording...</span>
+              </div>
+            </div>
+          </div>
+
+          <p id="mediaError" class="field-error"></p>
+          <div id="attachedMediaList" class="media-preview-list"></div>
+        </section>
+
+        <section class="preview-card" aria-label="Auto-generated Report Summary Preview">
+          <div class="preview-header">
+            <div>
+              <h2 class="section-heading">4. Auto-Generated Report Summary Preview</h2>
+              <p class="field-hint">Review all details carefully before confirming and submitting.</p>
+            </div>
+            <span class="badge badge-primary">Live Preview</span>
+          </div>
+
+          <div class="preview-grid">
+            <div class="preview-field">
+              <span class="preview-field-label">Emergency Category</span>
+              <span id="previewCategory" class="preview-field-value">Not selected</span>
+            </div>
+            <div class="preview-field">
+              <span class="preview-field-label">Priority Level</span>
+              <span id="previewPriority" class="preview-field-value">Not selected</span>
+            </div>
+            <div class="preview-field">
+              <span class="preview-field-label">Contact Number</span>
+              <span id="previewContact" class="preview-field-value">Not provided</span>
+            </div>
+            <div class="preview-field">
+              <span class="preview-field-label">Incident Date</span>
+              <span id="previewDate" class="preview-field-value">Not selected</span>
+            </div>
+          </div>
+
+          <div class="preview-field">
+            <span class="preview-field-label">Location &amp; GPS Coordinates</span>
+            <span id="previewLocation" class="preview-field-value">No location entered</span>
+          </div>
+
+          <div class="preview-field">
+            <span class="preview-field-label">Incident Description</span>
+            <span id="previewDescription" class="preview-field-value">No description entered</span>
+          </div>
+
+          <div class="preview-field">
+            <span class="preview-field-label">Attached Media</span>
+            <span id="previewMediaSummary" class="preview-field-value">No files attached</span>
+            <div id="previewMediaThumbs" class="preview-media-thumbs"></div>
+          </div>
+
+          <label class="confirm-box" for="truthfulCheckbox">
+            <input type="checkbox" id="truthfulCheckbox" name="truthful_confirmed">
+            <span class="confirm-text">
+              I confirm that this emergency report is truthful, accurate, and submitted in good faith.
+            </span>
+          </label>
+          <p id="truthfulCheckboxError" class="field-error"></p>
+
+          <button type="submit" id="submitReportBtn" class="btn btn-primary btn-block" disabled>
+            Submit Emergency Report to Barangay
+          </button>
+        </section>
+      </form>
+    </main>
+  </div>
+
+  <div id="imageLightboxModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="lightboxCaption">
+    <div class="lightbox-card">
+      <div class="lightbox-topbar">
+        <span id="lightboxCaption" class="lightbox-caption">Image Preview</span>
+        <button type="button" id="closeLightboxBtn" class="btn btn-primary btn-sm">Close</button>
+      </div>
+      <div class="lightbox-image-frame">
+        <img id="lightboxImage" class="lightbox-image" src="" alt="Enlarged report image">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

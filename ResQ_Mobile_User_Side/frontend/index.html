@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResQ — Barangay Emergency &amp; Incident Reporting System</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/auth.css">
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/intro.js"></script>
+</head>
+<body>
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <main class="auth-shell">
+    <section class="mobile-frame">
+      <header class="intro-banner">
+        <div class="brand-row">
+          <div class="brand-icon-box" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="M12 8v4"></path>
+              <path d="M12 16h.01"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="brand-title">ResQ Resident</h1>
+            <p class="brand-subtitle">Barangay Emergency &amp; Incident Reporting</p>
+          </div>
+        </div>
+        <p class="intro-lead">
+          Report community emergencies directly to Barangay Command with GPS coordinates,
+          photo/video/voice evidence, and real-time response tracking.
+        </p>
+      </header>
+
+      <div class="auth-body">
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-badge-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+            <div>
+              <h3>Verified Resident Reporting</h3>
+              <p>Account verification prevents anonymous prank reports and connects responders directly to you.</p>
+            </div>
+          </li>
+
+          <li class="feature-item">
+            <div class="feature-badge-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3>Auto GPS &amp; Multi-Media Evidence</h3>
+              <p>Attach photos, videos, or voice recordings along with live barangay location coordinates.</p>
+            </div>
+          </li>
+
+          <li class="feature-item">
+            <div class="feature-badge-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+            </div>
+            <div>
+              <h3>Unique Tracking &amp; Status Alerts</h3>
+              <p>Receive a unique tracking reference number and instant notifications when barangay staff respond.</p>
+            </div>
+          </li>
+        </ul>
+
+        <div class="hotline-box">
+          <strong>Life-Threatening Emergency?</strong> Submit your report right away after signing in, or call National Emergency Hotline <strong>911</strong>.
+        </div>
+
+        <div id="guestActions" class="action-stack">
+          <a href="login.html" class="btn btn-primary btn-block">Resident Sign In</a>
+          <a href="register.html" class="btn btn-accent btn-block">Create Resident Account</a>
+        </div>
+
+        <div id="authenticatedActions" class="action-stack hidden">
+          <a href="report.html" class="btn btn-primary btn-block">Open Emergency Report Form</a>
+          <a href="history.html" class="btn btn-outline btn-block">View My Report History</a>
+        </div>
+      </div>
+
+      <footer class="auth-footer">
+        ResQ Barangay Resident Portal
+      </footer>
+    </section>
+  </main>
+</body>
+</html>

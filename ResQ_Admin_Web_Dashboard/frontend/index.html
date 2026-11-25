@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResQ Barangay Admin Command Center</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/auth.css">
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/intro.js"></script>
+</head>
+<body>
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <main class="auth-shell">
+    <section class="admin-auth-card">
+      <header class="admin-auth-banner">
+        <div class="brand-row">
+          <div class="brand-icon-box" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="M9 12l2 2 4-4"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="brand-title">ResQ Admin Command</h1>
+            <p class="brand-subtitle">Barangay Emergency Management &amp; Dispatch Portal</p>
+          </div>
+        </div>
+        <p class="intro-lead">
+          Monitor resident emergency reports in real time, update response statuses, review geo-tagged evidence,
+          and generate analytical summaries for Barangay officials.
+        </p>
+      </header>
+
+      <div class="auth-body">
+        <div class="capability-grid">
+          <div class="capability-card">
+            <h3>Live Report Monitoring</h3>
+            <p>Search and filter incoming reports by date, priority, category, or tracking number.</p>
+          </div>
+
+          <div class="capability-card">
+            <h3>Response Status Control</h3>
+            <p>Update incidents across Pending, Responding, and Resolved with instant resident alerts.</p>
+          </div>
+
+          <div class="capability-card">
+            <h3>Chart.js Analytics</h3>
+            <p>Visualize incident status, categories, priority levels, and daily submission trends.</p>
+          </div>
+
+          <div class="capability-card">
+            <h3>Official Print &amp; CSV Export</h3>
+            <p>Print formatted barangay incident logs or export filtered records for documentation.</p>
+          </div>
+        </div>
+
+        <div id="adminGuestActions">
+          <a href="login.html" class="btn btn-primary btn-block">Proceed to Barangay Admin Login</a>
+        </div>
+
+        <div id="adminAuthActions" class="hidden">
+          <a href="dashboard.html" class="btn btn-accent btn-block">Open Command Dashboard</a>
+        </div>
+      </div>
+
+      <footer class="auth-footer">
+        Authorized Barangay Officials Only — ResQ Dispatch System
+      </footer>
+    </section>
+  </main>
+</body>
+</html>
